@@ -1,0 +1,1 @@
+debconf passwd/usr-default-groups string audio cdrom dialout video plugdev powerdef fuse sudo libvirtd kvm  
