@@ -68,7 +68,7 @@ do_daemon()
   while true; do
     do_sync /mnt/bootserver/ http://hadar.amxa.ch/boot-images/
     sleep 1800
-    #do_sync /mnt/images/ http://xxx.xxx.xxx/path/to/
+    do_sync /mnt/images/ http://172.16.42.10/ltsp-images/
     sleep 1800
   done
 }

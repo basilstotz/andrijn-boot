@@ -12,23 +12,12 @@
 
 do_sync()
 {
-  if ! cd /mnt/images/; then 
-    echo "error: disk not mounted"
-    exit 1
-  fi
 
-  if test -z "$1"; then
-    SERVER="http://172.16.42.10"
-    PATH="ltsp-images"
-    #SERVER=$(getltscfg IMAGE_SERVER)
-    #PATH=$(getltscfg IMAGE_PATH)
-    URL="$SERVER/$PATH"
-  else
-    URL="$1"
-  fi
+  cd $1
+  URL=$2
 
   if test -f version; then
-    VERSION=$(/bin/cat version)
+    VERSION=$(cat version)
   else
     VERSION=0
     touch version
@@ -75,10 +64,12 @@ do_sync()
 
 do_daemon()
 {
-  sleep $(( $RANDOM / 10 ))
+  sleep $(( $RANDOM / 20 ))
   while true; do
-    do_sync
-    sleep 3600
+    do_sync /mnt/bootserver/ http://hadar.amxa.ch/boot-images/
+    sleep 1800
+    #do_sync /mnt/images/ http://xxx.xxx.xxx/path/to/
+    sleep 1800
   done
 }
 
