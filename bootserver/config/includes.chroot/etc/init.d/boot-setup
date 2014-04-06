@@ -54,7 +54,7 @@ do_sync()
         rm *.zs-old 
       fi
       #change permissions for nbd-server
-      chmod a+r /mnt/images/*.img
+      chmod a+r *.img
 
       echo "ok"
     fi
@@ -132,8 +132,8 @@ do_start()
 do_stop()
 {
    if test -f /var/run/sync-daemon.pid; then
-     kill $(cat /var/run/snc-daemon.pid)
-     rm /var/run/snc-daemon.pid
+     kill $(cat /var/run/sync-daemon.pid)
+     rm /var/run/sync-daemon.pid
    fi
    umount /mnt
 }
