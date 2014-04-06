@@ -1,0 +1,4 @@
+#!/bin/sh
+sed -i 's,timeout 0,timeout 30,' 'binary/isolinux/isolinux.cfg'
+echo "ok"
+

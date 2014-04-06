@@ -1,0 +1,1 @@
+cups apache2 zsync isc-dhcp-server inetd tftp-hpa nbd-server console-data lvm2 less openssh-server bridge-utils vde2 vde2-cryptcab autossh qemu-kvm avahi-daemon avahi-autoipd libvirt-bin e3 virt-manager acpid nfs-common  
