@@ -115,6 +115,19 @@ do_start()
   service nbd-server restart
 
 
+  # prepare tftp
+
+  if ! test -d /var/lib/tftboot/ltsp/i386/; then
+    mkdir -p /var/lib/taftboot/ltsp/i386;
+  fi  
+  if ! test -d /mnt/volume; then mkdir /mnt/volume; fi
+
+  if mount -t squashfs /mnt/${BOOT} /mnt/volume; then
+    rsync -r /mnt/volume/var/lib/tftpboot/ltsp/i386/ /var/lib/tftpboot/ltsp/i386/    
+    umount /mnt/volume/
+    service tftp-hpa reload
+  fi
+
   # start sync-daemon in background
   if ! test -f /var/run/sync-daemon.pid; then
     $0 daemon &
