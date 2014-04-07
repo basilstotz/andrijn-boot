@@ -13,8 +13,8 @@
 do_sync()
 {
 
-  cd $1
-  URL=$2
+  URL=$1
+  cd $2
 
   if test -f version; then
     VERSION=$(cat version)
@@ -26,39 +26,37 @@ do_sync()
 
   VERSION_neu="$(wget -O - ${URL}/version 2>/dev/null)"
 
-  if test -z "$VERSION_neu"; then 
-     echo "could not read new version:${VERSION_neu}:"
-     exit 1
-  fi
+  if test -n "$VERSION_neu"; then 
  
-  if test "$VERSION"  = "$VERSION_neu"; then
-    echo "nothing to do"
-  else
-    echo "copy $(printf "%06i.img" $VERSION) to $(printf "%06i.img" $VERSION_neu)..."
-    cp $(printf "%06i.img" $VERSION) $(printf "%06i.img" $VERSION_neu) 
-    echo "zsync..." 
-    if zsync "${URL}/$(printf "%06i.img" $VERSION_neu).zsync"; then
-      # sync meta info
-      rm primary-image-*
-      wget ${URL}/primary-image-$(printf "%06i" $VERSION_neu)
-      rm version
-      wget ${URL}/version
-      echo "done"
+    if test "$VERSION"  = "$VERSION_neu"; then
+      echo "nothing to do"
+    else
+      echo "copy $(printf "%06i.img" $VERSION) to $(printf "%06i.img" $VERSION_neu)..."
+      cp $(printf "%06i.img" $VERSION) $(printf "%06i.img" $VERSION_neu) 
+      echo "zsync..." 
+      if zsync "${URL}/$(printf "%06i.img" $VERSION_neu).zsync"; then
+        # sync meta info
+        rm primary-image-*
+        wget ${URL}/primary-image-$(printf "%06i" $VERSION_neu)
+        rm version
+        wget ${URL}/version
+        echo "done"
 
-      #remove old images
-      echo "remove oldies"
-      if test -f $(printf "%06i.img" $(( $VERSION -3 ))); then
-        rm $(printf "%06i.img" $(( $VERSION -3 )))
-      fi
-      if test -f *.zs-old; then 
-        rm *.zs-old 
-      fi
-      #change permissions for nbd-server
-      chmod a+r *.img
+        #remove old images
+        echo "remove oldies"
+        if test -f $(printf "%06i.img" $(( $VERSION -3 ))); then
+          rm $(printf "%06i.img" $(( $VERSION -3 )))
+        fi
+        if test -f *.zs-old; then 
+          rm *.zs-old 
+        fi
+        #change permissions for nbd-server
+        chmod a+r *.img
 
-      echo "ok"
-    fi
-  fi
+        echo "ok"
+      fi #zsync
+    fi # version neu
+  fi 
 }
 
 
@@ -66,9 +64,9 @@ do_daemon()
 {
   sleep $(( $RANDOM / 20 ))
   while true; do
-    do_sync /mnt/bootserver/ http://hadar.amxa.ch/boot-images/
+    do_sync http://hadar.amxa.ch/boot-images/ /mnt/bootserver/ 
     sleep 1800
-    do_sync /mnt/images/ http://172.16.42.10/ltsp-images/
+    #do_sync http://172.16.42.10/ltsp-images/ /mnt/images/ 
     sleep 1800
   done
 }
@@ -120,7 +118,7 @@ do_start()
   # start sync-daemon in background
   if ! test -f /var/run/sync-daemon.pid; then
     $0 daemon &
-    echo $# > /var/run/sync-daemon.pid
+    echo $! > /var/run/sync-daemon.pid
   fi
 
 
