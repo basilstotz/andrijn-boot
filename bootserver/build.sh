@@ -1,6 +1,5 @@
 #!/bin/sh
 
-
 lb clean
 lb build
 
@@ -8,18 +7,29 @@ WWW="www"
 
 if ! test -d $WWW; then mkdir $WWW;  fi
 
-VERSION=$(cat $WWW/version)
-if test -z "$VERSION"; then echo "oops!"; exit 1; fi
-NEXT=$(( $VERSION + 1 ))
-PREV=$(( $VERSION - 1 ))
-NUMMER=$(printf "%06i" $NEXT)
+THIS=$(cat $WWW/version)
+PPREV=$(( $THIS - 2 ))
+PREV=$(( $THIS - 1 ))
+NEXT=$(( $THIS + 1 ))
 
-cp binary/live/filesystem.squashfs ${WWW}/${NUMMER}.img
-cd $WWW
-zsyncmake -u ${NUMMER}.img ${NUMMER}.img
-rm primary-image-*
-touch primary-image-${NUMMER} 
-if test -f $(printf "%06i.img" $VERSION); then
-   rm $(printf "%06i.img*" $VERSION)
+if test -z "$THIS"; then echo "oops!"; exit 1; fi
+
+if ! test -f $(printf "%06i.img" $PREV); then
+  PREV=$THIS
 fi
-echo $NEXT > version
+
+
+cp binary/live/filesystem.squashfs ${WWW}/$(printf "%06i.img" $NEXT)
+
+if cd $WWW; then
+  zsyncmake -u $(printf "%06i.img" $NEXT) $(printf "%06i.img" $NEXT)
+
+  rm primary-image-*
+  touch primary-image-$(printf "%06i" $THIS)
+
+  #remove oldest
+  if test -f $(printf "%06i.img" $PPREV); then
+    rm $(printf "%06i.img*" $PPREV)
+  fi
+  echo $NEXT > version
+fi
