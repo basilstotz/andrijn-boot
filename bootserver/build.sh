@@ -9,10 +9,14 @@ if ! test -d $WWW; then mkdir $WWW;  fi
 
 THIS=$(cat $WWW/version)
 PPREV=$(( $THIS - 2 ))
-PREV=$(( $THIS - 1 ))
+#PREV=$(( $THIS - 1 ))
 NEXT=$(( $THIS + 1 ))
 
 if test -z "$THIS"; then echo "oops!"; exit 1; fi
+
+if ! test -f $(printf "%06i.img" $THIS); then
+ THIS=$NEXT
+fi
 
 if ! test -f $(printf "%06i.img" $PREV); then
   PREV=$THIS
@@ -33,3 +37,5 @@ if cd $WWW; then
   fi
   echo $NEXT > version
 fi
+
+exit
