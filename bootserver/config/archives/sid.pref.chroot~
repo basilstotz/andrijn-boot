@@ -1,0 +1,7 @@
+Package: live-*
+Pin: release n=sid
+Pin-Priority: 600
+
+Package: *
+Pin: release n=sid
+Pin-Priority: 1
