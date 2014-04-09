@@ -62,7 +62,7 @@ do_sync()
 
 do_daemon()
 {
-  sleep $(( $RANDOM / 20 ))
+  #sleep $(( $RANDOM / 20 ))
   while true; do
     do_sync http://hadar.amxa.ch/boot-images/ /mnt/bootserver/ 
     sleep 1800
@@ -160,9 +160,9 @@ do_reload()
 
 
 
-main()
-{
-  if ! cat /proc/cmdline | grep -q "loop"; then exit; fi
+# main
+
+  #if ! cat /proc/cmdline | grep -q "loop"; then exit; fi
 
   case "$1" in
     daemon)
@@ -183,6 +183,6 @@ main()
 	exit 3
 	;;
   esac
-}
 
-main
+  exit 
+
