@@ -18,11 +18,11 @@ LB_APT_INDICES="true"
 
 # $LB_BOOTAPPEND_LIVE: set boot parameters
 # (Default: empty)
-LB_BOOTAPPEND_LIVE="boot=live config quiet splash locales=de_CH.UTF-8 keyboard-layout=ch noprompt quickreboot noeject ip="
+LB_BOOTAPPEND_LIVE="boot=live config quiet splash locales=de_CH.UTF-8 keyboard-layout=de noprompt quickreboot noeject persistence ip="
 
 # $LB_BOOTAPPEND_INSTALL: set boot parameters
 # (Default: empty)
-LB_BOOTAPPEND_INSTALL=" locales=de_CH.UTF-8 keyboard-layout=ch "
+LB_BOOTAPPEND_INSTALL=" locales=de_CH.UTF-8 keyboard-layout=de "
 
 # $LB_BOOTAPPEND_LIVE_FAILSAFE: set boot parameters
 # (Default: empty)
