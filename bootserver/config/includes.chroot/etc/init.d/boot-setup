@@ -84,7 +84,7 @@ do_start()
       if ! test -z "$CURRENT"; then continue; fi
       echo -n "trying: /dev/$P ..."
       if mount /dev/$P /mnt/; then
-        if test -d /mnt/images; then
+        if test -d /mnt/boot; then
            CURRENT=$P
            echo "ok"
         else
@@ -106,7 +106,7 @@ do_start()
   fi
 
   BOOT=$(cat /proc/cmdline|cut -d\  -f6|cut -d= -f2)     
-  if test -f /opt/ltsp/images/i386.img; then 
+  if test -h /opt/ltsp/images/i386.img; then 
          rm /opt/ltsp/images/i386.img
   fi
   ln -s /mnt/${BOOT} /opt/ltsp/images/i386.img
@@ -118,7 +118,7 @@ do_start()
   # prepare tftp
 
   if ! test -d /var/lib/tftboot/ltsp/i386/; then
-    mkdir -p /var/lib/taftboot/ltsp/i386;
+    mkdir -p /var/lib/tftpboot/ltsp/i386;
   fi  
   if ! test -d /mnt/volume; then mkdir /mnt/volume; fi
 
