@@ -36,8 +36,8 @@ do_sync()
       echo "zsync..." 
       if zsync "${URL}/$(printf "%06i.img" $VERSION_neu).zsync"; then
         # sync meta info
-        rm primary-image-*
-        wget ${URL}/primary-image-$(printf "%06i" $VERSION_neu)
+        rm *-image-*
+        wget ${URL}/cur-image-$(printf "%06i" $VERSION_neu)
         rm version
         wget ${URL}/version
         echo "done"
@@ -45,7 +45,7 @@ do_sync()
         #remove old images
         echo "remove oldies"
         if test -f $(printf "%06i.img" $(( $VERSION -3 ))); then
-          rm $(printf "%06i.img" $(( $VERSION -3 )))
+          rm $(printf "%06i.img*" $(( $VERSION -3 )))
         fi
         if test -f *.zs-old; then 
           rm *.zs-old 
@@ -64,7 +64,7 @@ do_daemon()
 {
   #sleep $(( $RANDOM / 20 ))
   while true; do
-    do_sync http://hadar.amxa.ch/boot-images/ /mnt/bootserver/ 
+    do_sync http://hadar.amxa.ch/boot-images/ /mnt/boot-images/ 
     sleep 1800
     #do_sync http://172.16.42.10/ltsp-images/ /mnt/images/ 
     sleep 1800
@@ -76,8 +76,9 @@ do_daemon()
 #
 do_start()
 {
+  if ! test -d /mnt/boot-images; then mkdir /mnt/boot-images;fi
   
-  if mount -L server /mnt; then
+  if mount -L server /mnt/boot-images; then
 
     # start sync-daemon in background
     if ! test -f /var/run/sync-daemon.pid; then
