@@ -36,10 +36,15 @@ do_sync()
       echo "zsync..." 
       if zsync "${URL}/$(printf "%06i.img" $VERSION_neu).zsync"; then
         # sync meta info
-        rm *-image-*
-        wget ${URL}/cur-image-$(printf "%06i" $VERSION_neu)
         rm version
         wget ${URL}/version
+
+        rm *-image-*
+        touch old-image-$(printf "%06i" $VERSION)
+        touch cur-image-$(printf "%06i" $VERSION_neu)
+        touch nxt-image-$(printf "%06i" $VERSION_neu)
+
+
         echo "done"
 
         #remove old images
@@ -78,7 +83,7 @@ do_start()
 {
   if ! test -d /mnt/boot-images; then mkdir /mnt/boot-images;fi
   
-  if mount -L server /mnt/boot-images; then
+  if mount -L boot /mnt/boot-images; then
 
     # start sync-daemon in background
     if ! test -f /var/run/sync-daemon.pid; then
