@@ -71,6 +71,46 @@ do_daemon()
   done
 }
 
+do_install()
+{
+
+  # foramt disk sda1 sda2
+
+  # prepare server partition
+  mkfs.ext4 -L server /dev/sda1
+  if mount -L server /mnt; then
+
+    #install grub
+    grub-install --root-directory=/mnt /dev/sda1
+    pushd
+    cd /mnt/boot/grub/
+    rm *
+    wget http://hadar.amxa.ch/boot-images/grub.cfg
+    popd
+
+    # install initial image...
+    mkdir /mnt/server
+    cd /mnt/server
+    wget http://hadar.amxa.ch/boot-images/version
+    VERSION=$(cat version)
+    wget http://hadar.amxa.ch/boot-images/$(printf "%06i.img" $(( $VERSION - 1 )))
+    touch cur-image-$(printf "%06i.img" $(( $VERSION - 1 )))
+ 
+
+    umount /mnt
+  fi
+  
+
+  mkfs.ext4 -L persistence /dev/sda2
+  if mount -L persistence /mnt; then
+     echo "/var/lib/tftpboot/ltsp/i386/
+/opt/ltsp/images/" > persistence.conf
+     umount -mnt
+  fi
+
+
+}
+
 #
 # Function that starts the daemon/service
 #
