@@ -10,6 +10,51 @@
 #                    placed in /etc/init.d.
 ### END INIT INFO
 
+
+do_install()
+{
+  # usage: do_install /dev/sdx
+  #partitions disk sda1 sda2
+ 
+
+  fdisk $1
+
+  if ! test -d /nmt/boot-images; then mkdir /mnt/boot-images;fi
+
+  if mount -L boot-images /mnt/boot-images; then
+    umount /mnt/boot-images
+    echo "nichts zu tun"
+    exit 1
+  fi
+
+  #boot-images
+  mkfs.ext4 -L boot-images ${1}1
+  if mount -L boot-images /mnt/boot-images; then
+    grub-install --force --root-directory=/mnt/boot-images ${1}1
+    cd /mnt/boot-images/boot/grub/
+    rm *
+    wget http://hadar.amxa.ch/boot-images/grub.cfg
+    cd /mnt/boot-images
+    wget http://hadar.amxa.ch/boot-images/version
+    wget http://hadar.amxa.ch/boot-images/$(printf "%06i.img" $(cat version))
+    touch cur-image-$(printf "%06i" $(cat version))
+   
+    umount /mnt/boot-images/
+  fi
+
+  #persistence
+  if ! test -d /nmt/persistence; then mkdir /mnt/persistence;fi
+
+  mkfs.ext4 -L persistence ${1}2
+  if mount -L persistence /mnt/persistence/;then
+    echo "/var/lib/tftpboot/ltsp/i386/" > persistence.conf
+    echo "/opt/ltsp/images/" >> persistence.conf
+    umount /mnt/persistence
+  fi
+ 
+}
+
+
 do_sync()
 {
 
@@ -45,8 +90,6 @@ do_sync()
         touch nxt-image-$(printf "%06i" $VERSION_neu)
 
 
-        echo "done"
-
         #remove old images
         echo "remove oldies"
         if test -f $(printf "%06i.img" $(( $VERSION -3 ))); then
@@ -57,6 +100,8 @@ do_sync()
         fi
         #change permissions for nbd-server
         chmod a+r *.img
+
+        echo "$VERSION_neu" > version
 
         echo "ok"
       fi #zsync
