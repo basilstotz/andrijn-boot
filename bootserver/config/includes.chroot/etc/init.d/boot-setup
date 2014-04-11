@@ -11,6 +11,9 @@
 ### END INIT INFO
 
 
+BOOT_IMAGE_URL="http://172.16.42.109/boot-images/"
+
+
 do_install()
 {
 
@@ -101,15 +104,15 @@ if mount /dev/${DISK}1 ${MNT}/part1; then
     # install grub
     grub-install --force --root-directory=${MNT}/part1 /dev/${DISK}
     if cd ${MNT}/part1/boot/grub/; then
-      wget http://hadar.amxa.ch/boot-images/grub.cfg
+      wget ${BOOT_IMAGES_URL}/grub.cfg
       echo -n ""
     fi
 
     # install initial boot-image
     mkdir ${MNT}/part1/boot-images/
     if cd ${MNT}/part1/boot-images/; then
-      if wget http://hadar.amxa.ch/boot-images/version; then
-        wget http://hadar.amxa.ch/boot-images/$(printf "%06i.img" $(cat version))
+      if wget ${BOOT_IMAGES_URL}/version; then
+        wget ${BOOT_IMAGES_URL}/$(printf "%06i.img" $(cat version))
         touch $(printf "cur-image-%06i" $(cat version))
         echo -n ""
       fi
@@ -199,7 +202,7 @@ do_daemon()
 {
   #sleep $(( $RANDOM / 20 ))
   while true; do
-    do_sync http://hadar.amxa.ch/boot-images/ /mnt/boot-images/ 
+    do_sync ${BOOT_IMAGES_URL} /mnt/boot-images/ 
     sleep 1800
     #do_sync http://172.16.42.10/ltsp-images/ /mnt/images/ 
     sleep 1800
