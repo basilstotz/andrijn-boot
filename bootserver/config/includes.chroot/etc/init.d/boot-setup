@@ -17,7 +17,7 @@ BOOT_IMAGE_URL="http://172.16.42.109/boot-images/"
 do_install()
 {
 
-  if mount -L boot-images /mnt/boot-images; then
+  if mount -L boot-images /mnt/boot-images 2>/dev/null; then
     umount /mnt/boot-images
     echo "nichts zu tun"
     exit 0
@@ -29,7 +29,7 @@ echo
 echo "This Programm destroys your Disk. Typ \"I know this\" to continue!"
 read ANS
 
-if ! test $ANS = "I know this";then exit 1;fi
+if ! test "$ANS" = "I know this";then exit 1;fi
 
 # install bootserver
 
