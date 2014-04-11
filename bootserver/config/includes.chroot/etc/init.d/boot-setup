@@ -13,44 +13,129 @@
 
 do_install()
 {
-  # usage: do_install /dev/sdx
-  #partitions disk sda1 sda2
- 
-
-  fdisk $1
-
-  if ! test -d /nmt/boot-images; then mkdir /mnt/boot-images;fi
 
   if mount -L boot-images /mnt/boot-images; then
     umount /mnt/boot-images
     echo "nichts zu tun"
-    exit 1
+    exit 0
   fi
 
-  #boot-images
-  mkfs.ext4 -L boot-images ${1}1
-  if mount -L boot-images /mnt/boot-images; then
-    grub-install --force --root-directory=/mnt/boot-images ${1}1
-    cd /mnt/boot-images/boot/grub/
-    rm *
-    wget http://hadar.amxa.ch/boot-images/grub.cfg
-    cd /mnt/boot-images
-    wget http://hadar.amxa.ch/boot-images/version
-    wget http://hadar.amxa.ch/boot-images/$(printf "%06i.img" $(cat version))
-    touch cur-image-$(printf "%06i" $(cat version))
-   
-    umount /mnt/boot-images/
-  fi
 
-  #persistence
-  if ! test -d /nmt/persistence; then mkdir /mnt/persistence;fi
+echo "=================Atention===================="
+echo 
+echo "This Programm destroys your Disk. Typ \"I know this\" to continue!"
+read ANS
 
-  mkfs.ext4 -L persistence ${1}2
-  if mount -L persistence /mnt/persistence/;then
-    echo "/var/lib/tftpboot/ltsp/i386/" > persistence.conf
-    echo "/opt/ltsp/images/" >> persistence.conf
-    umount /mnt/persistence
+if ! test $ANS = "I know this";then exit 1;fi
+
+# install bootserver
+
+MNT="/mnt"
+
+echo
+echo "Found the following disks:"
+cat /proc/partitions
+echo
+
+RET=true
+while $RET; do 
+
+  echo -n "Your choice (or quit)? "
+  read DISK
+
+  if test "$DISK" = "quit"; then exit 1;fi
+
+  if test -z "$DISK"; then DISK="no disk"; fi
+ 
+  if cat /proc/partitions|grep -q "${DISK}$"; then
+
+    echo
+    echo "!!!!! Your are about to erease  $DISK   !!!!!"
+    echo 
+    echo -n "Do you want to continue? (Yes/No) "
+    read ANS
+
+    case $ANS in
+      Yes)
+       #echo "Yes"
+       RET=false
+       ;;
+      No)
+       #echo "No"
+       exit
+       ;;
+      *)
+       echo "Answer Yes or No!"
+       ;;
+    esac
+  else
+   RET=true
   fi
+done
+
+echo "*****************$ANS"
+
+# exit
+
+umount /dev/${DISK}1
+umount /dev/${DISK}2
+umount /dev/${DISK}3
+
+
+parted --align optimal --script /dev/${DISK} -- mklabel msdos
+parted --align optimal --script /dev/${DISK} -- mkpart primary 2048s 8G
+parted --align optimal --script /dev/${DISK} -- set 1 boot on
+parted --align optimal --script /dev/${DISK} -- mkpart primary 8G 9G
+parted --align optimal --script /dev/${DISK} -- mkpart primary 9G 95%
+
+umount /dev/${DISK}1
+umount /dev/${DISK}2
+umount /dev/${DISK}3
+
+mkfs.ext4 -L boot-images /dev/${DISK}1
+mkfs.ext4 -L persistence /dev/${DISK}2
+mkfs.ext4 -L persistence /dev/${DISK}3
+
+if ! test -d ${MNT}/part1;then mkdir ${MNT}/part1;fi
+if mount /dev/${DISK}1 ${MNT}/part1; then
+    # install grub
+    grub-install --force --root-directory=${MNT}/part1 /dev/${DISK}
+    if cd ${MNT}/part1/boot/grub/; then
+      wget http://hadar.amxa.ch/boot-images/grub.cfg
+      echo -n ""
+    fi
+
+    # install initial boot-image
+    mkdir ${MNT}/part1/boot-images/
+    if cd ${MNT}/part1/boot-images/; then
+      if wget http://hadar.amxa.ch/boot-images/version; then
+        wget http://hadar.amxa.ch/boot-images/$(printf "%06i.img" $(cat version))
+        touch $(printf "cur-image-%06i" $(cat version))
+        echo -n ""
+      fi
+    fi
+fi
+
+
+if ! test -d ${MNT}/part2;then mkdir ${MNT}/part2;fi
+if mount /dev/${DISK}2 ${MNT}/part2; then
+    echo "" > ${MNT}/part2/persistence.conf
+fi
+
+
+if ! test -d ${MNT}/part3;then mkdir ${MNT}/part3;fi
+if mount /dev/${DISK}3 ${MNT}/part3; then
+    echo "/opt/ltsp/images/" > ${MNT}/part3/persistence.conf
+    echo "/var/lib/tftpboot/ltsp/i386/" >> ${MNT}/part3/persistence.conf
+fi
+
+sleep 5
+
+umount ${MNT}/part1
+umount ${MNT}/part2
+umount ${MNT}/part3
+
+
  
 }
 
@@ -139,6 +224,8 @@ do_start()
   fi
 } 
 
+#######################################################################
+
   # try to mount partition with images
 #  PARTS="sdc1 sdb1 sda1 vda1"
 #  CURRENT=""
@@ -194,6 +281,8 @@ do_start()
 
 #}
 
+#####################################################################3
+
 #
 # Function that stops the daemon/service
 #
@@ -223,6 +312,9 @@ do_reload()
   #if ! cat /proc/cmdline | grep -q "loop"; then exit; fi
 
   case "$1" in
+    install)
+        do_install
+        ;;
     daemon)
         do_daemon
         ;;
@@ -237,7 +329,7 @@ do_reload()
 	;;
     *)
 	#echo "Usage: $SCRIPTNAME {start|stop|restart|reload|force-reload}" >&2
-	echo "Usage: $SCRIPTNAME {start|stop|restart|reload}" >&2
+	echo "Usage: $SCRIPTNAME {start|stop|restart|reload|install}" >&2
 	exit 3
 	;;
   esac
