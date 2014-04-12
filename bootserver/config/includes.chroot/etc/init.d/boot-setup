@@ -23,10 +23,11 @@ do_install()
     exit 0
   fi
 
-
-echo "=================Atention===================="
+echo
+echo "=================Attention===================="
 echo 
 echo "This Programm destroys your Disk. Typ \"I know this\" to continue!"
+echo
 read ANS
 
 if ! test "$ANS" = "I know this";then exit 1;fi
@@ -86,10 +87,10 @@ umount /dev/${DISK}3
 
 
 parted --align optimal --script /dev/${DISK} -- mklabel msdos
-parted --align optimal --script /dev/${DISK} -- mkpart primary 2048s 8G
+parted --align optimal --script /dev/${DISK} -- mkpart primary 2048s 5G
 parted --align optimal --script /dev/${DISK} -- set 1 boot on
-parted --align optimal --script /dev/${DISK} -- mkpart primary 8G 9G
-parted --align optimal --script /dev/${DISK} -- mkpart primary 9G 95%
+parted --align optimal --script /dev/${DISK} -- mkpart primary 5G 6G
+parted --align optimal --script /dev/${DISK} -- mkpart primary 6G 95%
 
 umount /dev/${DISK}1
 umount /dev/${DISK}2
