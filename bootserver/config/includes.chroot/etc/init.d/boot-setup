@@ -121,6 +121,7 @@ if mount /dev/${DISK}1 ${MNT}/part1; then
       if wget ${BOOT_IMAGES_URL}/version; then
         wget ${BOOT_IMAGES_URL}/$(printf "%06i.img" $(cat version))
         touch $(printf "cur-image-%06i" $(cat version))
+        wget ${BOOT_IMAGES_URL}/hybrid.iso
         echo -n ""
       fi
     fi
@@ -175,6 +176,7 @@ do_sync()
       cp $(printf "%06i.img" $VERSION) $(printf "%06i.img" $VERSION_neu) 
       echo "zsync..." 
       if zsync "${URL}/$(printf "%06i.img" $VERSION_neu).zsync"; then
+        zsync ${URL}/hybrid.iso.zsync
         # sync meta info
         rm version
         wget ${URL}/version
