@@ -1,5 +1,6 @@
 #!/bin/sh
-echo -n "configuring network..."
+echo "sysvinit..."
 update-rc.d bridge defaults
+update-rc.d boot-setup defaults
 echo "ok"
 
