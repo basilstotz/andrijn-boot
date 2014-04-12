@@ -39,8 +39,8 @@ if cd $WWW; then
   touch nxt-image-$(printf "%06i" $NEXT)
 
   #remove oldest
-  if test -f $(printf "%06i.img" $PPREV); then
-    rm $(printf "%06i.img*" $PPREV)
+  if test -f $(printf "%06i.img" $PREV); then
+    rm $(printf "%06i.img*" $PREV)
   fi
 
   
