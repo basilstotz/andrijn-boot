@@ -11,17 +11,12 @@
 ### END INIT INFO
 
 
-BOOT_IMAGE_URL="http://172.16.42.109/boot-images/"
+BOOT_IMAGES_URL="http://172.16.42.110/boot-images"
 
 
 do_install()
 {
 
-  if mount -L boot-images /mnt/boot-images 2>/dev/null; then
-    umount /mnt/boot-images
-    echo "nichts zu tun"
-    exit 0
-  fi
 
 echo
 echo "=================Attention===================="
@@ -31,6 +26,17 @@ echo
 read ANS
 
 if ! test "$ANS" = "I know this";then exit 1;fi
+
+
+  if mount -L boot-images /mnt/boot-images 2>/dev/null; then
+    umount /mnt/boot-images
+    echo 
+    echo "It look like the system is already installed!"
+    echo -n "Do you want to overwrite your installation (Yes/No) "
+    read ANS
+    if test "$ANS" != "Yes"; then exit 1;fi
+  fi
+
 
 # install bootserver
 
@@ -201,9 +207,9 @@ do_sync()
 
 do_daemon()
 {
-  #sleep $(( $RANDOM / 20 ))
+  sleep 1800
   while true; do
-    do_sync ${BOOT_IMAGES_URL} /mnt/boot-images/ 
+    do_sync ${BOOT_IMAGES_URL} /${MNT}/boot-images/boot-images/ 
     sleep 1800
     #do_sync http://172.16.42.10/ltsp-images/ /mnt/images/ 
     sleep 1800
@@ -217,7 +223,7 @@ do_start()
 {
   if ! test -d /mnt/boot-images; then mkdir /mnt/boot-images;fi
   
-  if mount -L boot /mnt/boot-images; then
+  if mount -L boot-images /mnt/boot-images; then
 
     # start sync-daemon in background
     if ! test -f /var/run/sync-daemon.pid; then
