@@ -111,6 +111,7 @@ if mount /dev/${DISK}1 ${MNT}/part1; then
     # install grub
     grub-install --force --root-directory=${MNT}/part1 /dev/${DISK}
     if cd ${MNT}/part1/boot/grub/; then
+      rm *
       wget ${BOOT_IMAGES_URL}/grub.cfg
       echo -n ""
     fi
