@@ -119,9 +119,8 @@ if mount /dev/${DISK}1 ${MNT}/part1; then
     mkdir ${MNT}/part1/boot-images/
     if cd ${MNT}/part1/boot-images/; then
       if wget ${BOOT_IMAGES_URL}/version; then
-        wget ${BOOT_IMAGES_URL}/$(printf "%06i.img" $(cat version))
-        touch $(printf "cur-image-%06i" $(cat version))
-        wget ${BOOT_IMAGES_URL}/hybrid.iso
+        wget ${BOOT_IMAGES_URL}/$(printf "%06i.iso" $(cat version))
+        touch $(printf "cur-iso-%06i" $(cat version))
         echo -n ""
       fi
     fi
@@ -175,28 +174,27 @@ do_sync()
       echo "copy $(printf "%06i.img" $VERSION) to $(printf "%06i.img" $VERSION_neu)..."
       cp $(printf "%06i.img" $VERSION) $(printf "%06i.img" $VERSION_neu) 
       echo "zsync..." 
-      if zsync "${URL}/$(printf "%06i.img" $VERSION_neu).zsync"; then
-        zsync ${URL}/hybrid.iso.zsync
+      if zsync "${URL}/$(printf "%06i.iso" $VERSION_neu).zsync"; then
+        wget -O /mnt/boot-images/boot/grub/grub.cfg ${URL}/grub.cfg
+
         # sync meta info
         rm version
         wget ${URL}/version
 
         rm *-image-*
-        touch old-image-$(printf "%06i" $VERSION)
-        touch cur-image-$(printf "%06i" $VERSION_neu)
-        touch nxt-image-$(printf "%06i" $VERSION_neu)
+        touch old-iso-$(printf "%06i" $VERSION)
+        touch cur-iso-$(printf "%06i" $VERSION_neu)
+        touch nxt-iso-$(printf "%06i" $VERSION_neu)
 
 
         #remove old images
         echo "remove oldies"
-        if test -f $(printf "%06i.img" $(( $VERSION -3 ))); then
-          rm $(printf "%06i.img*" $(( $VERSION -3 )))
+        if test -f $(printf "%06i.iso" $(( $VERSION -3 ))); then
+          rm $(printf "%06i.iso*" $(( $VERSION -3 )))
         fi
         if test -f *.zs-old; then 
           rm *.zs-old 
         fi
-        #change permissions for nbd-server
-        chmod a+r *.img
 
         echo "$VERSION_neu" > version
 
