@@ -208,12 +208,12 @@ do_sync()
 
 do_daemon()
 {
-  sleep 1800
+  sleep 300
   while true; do
     do_sync ${BOOT_IMAGES_URL} /${MNT}/boot-images/boot-images/ 
-    sleep 1800
+    sleep 300
     #do_sync http://172.16.42.10/ltsp-images/ /mnt/images/ 
-    sleep 1800
+    sleep 300
   done
 }
 
