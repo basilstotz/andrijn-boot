@@ -12,6 +12,7 @@
 
 
 BOOT_IMAGES_URL="http://172.16.42.110/boot-images"
+MNT="/mnt"
 
 
 do_install()
@@ -40,7 +41,6 @@ if ! test "$ANS" = "I know this";then exit 1;fi
 
 # install bootserver
 
-MNT="/mnt"
 
 echo
 echo "Found the following disks:"
@@ -155,6 +155,7 @@ do_sync()
 {
 
   URL=$1
+
   cd $2
 
   if test -f version; then
@@ -173,7 +174,7 @@ do_sync()
       echo "nothing to do"
     else
       echo "copy $(printf "%06i.img" $VERSION) to $(printf "%06i.img" $VERSION_neu)..."
-      cp $(printf "%06i.img" $VERSION) $(printf "%06i.img" $VERSION_neu) 
+      cp $(printf "%06i.iso" $VERSION) $(printf "%06i.iso" $VERSION_neu) 
       echo "zsync..." 
       if zsync "${URL}/$(printf "%06i.iso" $VERSION_neu).zsync"; then
         wget -O /mnt/boot-images/boot/grub/grub.cfg ${URL}/grub.cfg
@@ -182,7 +183,7 @@ do_sync()
         rm version
         wget ${URL}/version
 
-        rm *-image-*
+        rm *-iso-*
         touch old-iso-$(printf "%06i" $VERSION)
         touch cur-iso-$(printf "%06i" $VERSION_neu)
         touch nxt-iso-$(printf "%06i" $VERSION_neu)
@@ -210,7 +211,7 @@ do_daemon()
 {
   sleep 300
   while true; do
-    do_sync ${BOOT_IMAGES_URL} /${MNT}/boot-images/boot-images/ 
+    do_sync ${BOOT_IMAGES_URL} ${MNT}/boot-images/boot-images/ 
     sleep 300
     #do_sync http://172.16.42.10/ltsp-images/ /mnt/images/ 
     sleep 300
