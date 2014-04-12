@@ -16,6 +16,7 @@ if test -z "$THIS"; then echo "oops!"; exit 1; fi
 
 
 cp binary.hybrid.iso $WWW/$(printf "%06i.iso" $NEXT)
+cp binary.hybrid.iso $WWW/hybrid.iso
 
 
 
@@ -31,9 +32,9 @@ if cd $WWW; then
 
 
   zsyncmake -u $(printf "%06i.iso" $NEXT) $(printf "%06i.iso" $NEXT)
+  zsyncmake -u hybrid.iso hybrid.iso
 
-
-  rm *-image-*
+  rm *-iso-*
   touch old-iso-$(printf "%06i" $PREV)
   touch cur-iso-$(printf "%06i" $THIS)
   touch nxt-iso-$(printf "%06i" $NEXT)
