@@ -1,5 +1,0 @@
-#!/bin/sh
-echo -n "configuring network..."
-update-rc.d bridge defaults
-echo "ok"
-
