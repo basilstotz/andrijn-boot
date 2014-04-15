@@ -129,7 +129,7 @@ fi
 
 if ! test -d ${MNT}/part2;then mkdir ${MNT}/part2;fi
 if mount /dev/${DISK}2 ${MNT}/part2; then
-    echo "" > ${MNT}/part2/persistence.conf
+    echo "/etc/cups/" > ${MNT}/part2/persistence.conf
 fi
 
 
