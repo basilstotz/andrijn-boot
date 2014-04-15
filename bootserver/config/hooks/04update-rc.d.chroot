@@ -2,5 +2,7 @@
 echo "sysvinit..."
 update-rc.d bridge defaults
 update-rc.d boot-setup defaults
+update-rc.d -f isc-dhcp-server remove
+update-rc.d -f nbd-server remove
 echo "ok"
 

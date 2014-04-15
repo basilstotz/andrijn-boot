@@ -229,16 +229,20 @@ do_daemon()
 do_start()
 {
   if ! test -d /mnt/boot-images; then mkdir /mnt/boot-images;fi
-  
-  if mount -L boot-images /mnt/boot-images; then
 
+  
+  if mount -L boot-images /mnt/boot-images 2>/dev/null >/dev/null; then
+
+    echo "Starting LTSP-Boot-Services"
     # start sync-daemon in background
     if ! test -f /var/run/sync-daemon.pid; then
       $0 daemon &
       echo $! > /var/run/sync-daemon.pid
     fi
 
-  fi
+  else
+    echo "Use: \"service boot-setup install\" to install LTSP-Boot-Services"
+  fi" 
 } 
 
 #######################################################################
