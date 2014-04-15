@@ -29,8 +29,7 @@ read ANS
 if ! test "$ANS" = "I know this";then exit 1;fi
 
 
-  if mount -L boot-images /mnt/boot-images 2>/dev/null; then
-    umount /mnt/boot-images
+  if test -d /mnt/boot; then
     echo 
     echo "It look like the system is already installed!"
     echo -n "Do you want to overwrite your installation (Yes/No) "
