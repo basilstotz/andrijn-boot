@@ -242,7 +242,7 @@ do_start()
 
   else
     echo "Use: \"service boot-setup install\" to install LTSP-Boot-Services"
-  fi" 
+  fi 
 } 
 
 #######################################################################
