@@ -264,13 +264,14 @@ do_start()
       echo $! > /var/run/sync-daemon.pid
     fi
 
-    NAME=$(printf "%06i.img"$(cat /opt/ltsp/images/version))
+    NAME=$(printf "%06i.img" $(cat /opt/ltsp/images/version))
 
     if test -f /opt/ltsp/images/${NAME}; then
       if ! test -d ${MNT}/image; then mkdir ${MNT}/image; fi
-      mount -t squashfs /opt/ltsp/images/i386.img ${MNT}/image
-      rsync -r --delete  ${MNT}/image/var/lib/tftpboot/ltsp/i386/ /var/lib/tftpboot/ltsp/i386/
+      mount -t squashfs /opt/ltsp/images/${NAME} ${MNT}/image
+      rsync -r -l --safe-links --delete  ${MNT}/image/var/lib/tftpboot/ltsp/i386/ /var/lib/tftpboot/ltsp/i386/
       umount ${MNT}/image
+      if test -h /opt/ltsp/images/i386.img; then rm /opt/ltsp/images/i386.img;fi 
       ln -s /opt/ltsp/images/${NAME} /opt/ltsp/images/i386.img
     fi
 
