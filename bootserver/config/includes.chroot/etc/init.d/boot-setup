@@ -194,7 +194,12 @@ do_sync()
       echo "nothing to do"
     else
       echo "copy $(printf "%06i.*" $VERSION) to $(printf "%06i.*" $VERSION_neu)..."
-      cp $(printf "%06i" $VERSION).$TYPE $(printf "%06i" $VERSION_neu).$TYPE 
+      if test -f $(printf "%06i" $VERSION).$TYPE; then
+        cp $(printf "%06i" $VERSION).$TYPE $(printf "%06i" $VERSION_neu).$TYPE
+      else
+        touch  $(printf "%06i" $VERSION_neu).$TYPE
+      fi
+
       echo "zsync..." 
       if zsync "${URL}/$(printf "%06i" $VERSION_neu).${TYPE}.zsync"; then
        
@@ -232,12 +237,12 @@ do_sync()
 
 do_daemon()
 {
-  sleep 300
+  sleep 120
   while true; do
     do_sync ${BOOT_IMAGES_URL} ${MNT}/boot-images/boot-images/ iso 
-    sleep 300
+    sleep 120
     do_sync ${LTSP_IMAGES_URL} /opt/ltsp/images/ img
-    sleep 300
+    sleep 120
   done
 }
 
