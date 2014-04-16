@@ -24,7 +24,7 @@
 do_start()
 {
 ifdown eth0
-#cp /etc/network/interfaces /root/interfaces.ori
+ifdown br0
 cp /root/interfaces.bridge /etc/network/interfaces
 ifup br0
 }
