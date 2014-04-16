@@ -12,7 +12,7 @@
 
 
 BOOT_IMAGES_URL="http://172.16.42.110/boot-images"
-LTSP_IMAGES_URL="http://172.16.42.10/ltsp-images/"
+LTSP_IMAGES_URL="http://172.16.42.10/ltsp-images"
 
 MNT="/mnt"
 
@@ -204,8 +204,13 @@ do_sync()
       if zsync "${URL}/$(printf "%06i" $VERSION_neu).${TYPE}.zsync"; then
        
         if test "$TYPE" = "iso"; then
-          wget -O /mnt/boot-images/boot/grub/grub.cfg ${URL}/grub.cfg
+          wget -O ${MNT}/boot-images/boot/grub/grub.cfg ${URL}/grub.cfg
+        else
+          F=$(printf "%06i" $VERSION_neu).${TYPE}
+          if test -h /opt/ltsp/images/i386.img; then rm /opt/ltsp/images/i386.img;fi
+          ln -s /opt/ltsp/images/$F /opt/ltsp/images/i386.img
         fi
+
 
         # sync meta info
         rm version
