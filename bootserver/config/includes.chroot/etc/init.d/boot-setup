@@ -273,6 +273,7 @@ do_start()
       umount ${MNT}/image
       if test -h /opt/ltsp/images/i386.img; then rm /opt/ltsp/images/i386.img;fi 
       ln -s /opt/ltsp/images/${NAME} /opt/ltsp/images/i386.img
+      service nbd-server restart
     fi
 
 
