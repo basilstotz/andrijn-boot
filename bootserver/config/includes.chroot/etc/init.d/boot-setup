@@ -349,7 +349,7 @@ do_stop()
      kill $(cat /var/run/sync-daemon.pid)
      rm /var/run/sync-daemon.pid
   
-     umount /mnt
+     umount ${MNT}/boot-images
    fi
 }
 
