@@ -12,6 +12,8 @@
 
 
 BOOT_IMAGES_URL="http://172.16.42.110/boot-images"
+LTSP_IMAGES_URL="http://172.16.42.10/ltsp-images/"
+
 MNT="/mnt"
 
 
@@ -114,6 +116,8 @@ if mount /dev/${DISK}1 ${MNT}/part1; then
       cp /lib/live/mount/medium/grub.cfg .
       #wget ${BOOT_IMAGES_URL}/grub.cfg
       echo -n ""
+    else
+      echo "could not cd /mnt/part1/boot/grub"
     fi
 
     # install initial boot-image
@@ -129,7 +133,11 @@ if mount /dev/${DISK}1 ${MNT}/part1; then
 #        touch $(printf "cur-iso-%06i" $(cat version))
 #        echo -n ""
 #      fi
+    else
+       echo "could not cd /mnt/part1/boot'images"
     fi
+else
+  echo "could not mount /dev/${DISK}1"
 fi
 
 
@@ -146,10 +154,15 @@ if mount /dev/${DISK}3 ${MNT}/part3; then
 fi
 
 sleep 5
-
 umount ${MNT}/part1
 umount ${MNT}/part2
 umount ${MNT}/part3
+
+sleep 5
+umount ${MNT}/part1
+umount ${MNT}/part2
+umount ${MNT}/part3
+
 
 
  
@@ -162,6 +175,8 @@ do_sync()
   URL=$1
 
   cd $2
+
+  TYPE=$3
 
   if test -f version; then
     VERSION=$(cat version)
@@ -178,26 +193,29 @@ do_sync()
     if test "$VERSION"  = "$VERSION_neu"; then
       echo "nothing to do"
     else
-      echo "copy $(printf "%06i.img" $VERSION) to $(printf "%06i.img" $VERSION_neu)..."
-      cp $(printf "%06i.iso" $VERSION) $(printf "%06i.iso" $VERSION_neu) 
+      echo "copy $(printf "%06i.*" $VERSION) to $(printf "%06i.*" $VERSION_neu)..."
+      cp $(printf "%06i" $VERSION).$TYPE $(printf "%06i" $VERSION_neu).$TYPE 
       echo "zsync..." 
-      if zsync "${URL}/$(printf "%06i.iso" $VERSION_neu).zsync"; then
-        wget -O /mnt/boot-images/boot/grub/grub.cfg ${URL}/grub.cfg
+      if zsync "${URL}/$(printf "%06i" $VERSION_neu).${TYPE}.zsync"; then
+       
+        if test "$TYPE" = "iso"; then
+          wget -O /mnt/boot-images/boot/grub/grub.cfg ${URL}/grub.cfg
+        fi
 
         # sync meta info
         rm version
         wget ${URL}/version
 
-        rm *-iso-*
-        touch old-iso-$(printf "%06i" $VERSION)
-        touch cur-iso-$(printf "%06i" $VERSION_neu)
-        touch nxt-iso-$(printf "%06i" $VERSION_neu)
+        rm *-$TYPE-*
+        touch old-$TYPE-$(printf "%06i" $VERSION)
+        touch cur-$TYPE-$(printf "%06i" $VERSION_neu)
+        touch nxt-$TYPE-$(printf "%06i" $VERSION_neu)
 
 
         #remove old images
         echo "remove oldies"
-        if test -f $(printf "%06i.iso" $(( $VERSION -3 ))); then
-          rm $(printf "%06i.iso*" $(( $VERSION -3 )))
+        if test -f $(printf "%06i" $(( $VERSION -3 ))).$TYPE; then
+          rm $(printf "%06i.*" $(( $VERSION -3 )))
         fi
         if test -f *.zs-old; then 
           rm *.zs-old 
@@ -216,9 +234,9 @@ do_daemon()
 {
   sleep 300
   while true; do
-    do_sync ${BOOT_IMAGES_URL} ${MNT}/boot-images/boot-images/ 
+    do_sync ${BOOT_IMAGES_URL} ${MNT}/boot-images/boot-images/ iso 
     sleep 300
-    #do_sync http://172.16.42.10/ltsp-images/ /mnt/images/ 
+    do_sync ${LTSP_IMAGES_URL} /opt/ltsp/images/ img
     sleep 300
   done
 }
