@@ -205,10 +205,6 @@ do_sync()
        
         if test "$TYPE" = "iso"; then
           wget -O ${MNT}/boot-images/boot/grub/grub.cfg ${URL}/grub.cfg
-        else
-          F=$(printf "%06i" $VERSION_neu).${TYPE}
-          if test -h /opt/ltsp/images/i386.img; then rm /opt/ltsp/images/i386.img;fi
-          ln -s /opt/ltsp/images/$F /opt/ltsp/images/i386.img
         fi
 
 
@@ -267,6 +263,17 @@ do_start()
       $0 daemon &
       echo $! > /var/run/sync-daemon.pid
     fi
+
+    NAME=$(printf "%06i.img"$(cat /opt/ltsp/images/version))
+
+    if test -f /opt/ltsp/images/${NAME}; then
+      if ! test -d ${MNT}/image; then mkdir ${MNT}/image; fi
+      mount -t squashfs /opt/ltsp/images/i386.img ${MNT}/image
+      rsync -r --delete  ${MNT}/image/var/lib/tftpboot/ltsp/i386/ /var/lib/tftpboot/ltsp/i386/
+      umount ${MNT}/image
+      ln -s /opt/ltsp/images/${NAME} /opt/ltsp/images/i386.img
+    fi
+
 
   else
     echo "Use: \"service boot-setup install\" to install LTSP-Boot-Services"
